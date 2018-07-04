@@ -777,6 +777,22 @@ void olcConsoleGameEngineGLOOP::DrawTriangle(int x1, int y1, int x2, int y2, int
     DrawLine(x3, y3, x1, y1, c, col);
 }
 
+void olcConsoleGameEngineGLOOP::DrawRectangle(int x, int y, int w, int h, short c, short col)
+{
+    /*
+        x,y-----x+w,y
+        |         |
+        |         |
+        |         |
+      x,y+h-----x+w,y+h
+    */
+    DrawLine(x,     y,     x + w, y,     c, col);
+    DrawLine(x + w, y,     x + w, y + h, c, col);
+    DrawLine(x + w, y + h, x,     y + h, c, col);
+    DrawLine(x,     y + h, x,     y,     c, col);
+
+}
+
 // https://www.avrfreaks.net/sites/default/files/triangles.c
 void olcConsoleGameEngineGLOOP::FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c, short col)
 {
