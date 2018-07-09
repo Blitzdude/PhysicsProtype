@@ -44,6 +44,8 @@ public:
         for (auto p : pointsInTree)
             Draw(p->x, p->y);
        
+		// Draw a Rectangle
+		DrawRectangle(122, 133, 62, 46, PIXEL_SOLID, BG_CYAN);
         
         return true;
     };

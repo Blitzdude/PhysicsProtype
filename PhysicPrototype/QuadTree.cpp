@@ -84,3 +84,28 @@ void QuadTree::getPoints(std::vector<Point*>& vec)
     }
    
 }
+
+void QuadTree::getPointsInArea(std::vector<Point*>& vec, QuadRect area)
+{
+	if (!this->boundary.Intersects(area))
+	{
+		// returns empty if no points found
+		return;
+	}
+	else
+	{
+		for (auto itr : points)
+		{
+			vec.push_back(itr);
+		}
+
+		if (!isLeaf())
+		{
+			topLeft->getPointsInArea(vec, area);
+			topRight->getPointsInArea(vec, area);
+			bottomRight->getPointsInArea(vec, area);
+			bottomLeft->getPointsInArea(vec, area);
+		}
+	}
+
+}
