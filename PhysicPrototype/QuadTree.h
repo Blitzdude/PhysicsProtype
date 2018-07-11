@@ -27,6 +27,15 @@ struct QuadRect {
 			cy - h_half <= a.cy + a.h_half &&
 			cy + h_half >= a.cy - a.h_half);
 	}
+	bool Contains(Point* p)
+	{
+
+		// AABB Check
+		return (cx - w_half <= p->x &&
+			cx + w_half >= p->x &&
+			cy - h_half <= p->y &&
+			cy + h_half >= p->y);
+	}
 };
 
 class QuadTree
@@ -37,8 +46,8 @@ public:
 
 
     bool Insert(Point* point);
-    void getPoints(std::vector<Point*>& vec);
-	void getPointsInArea(std::vector<Point*>& vec, QuadRect area);
+    void Query(std::vector<Point*>& vec = std::vector<Point*>() );
+	void QueryArea(std::vector<Point*>& vec, QuadRect area);
 
     // Getters
     bool isLeaf() { return leaf; };
@@ -46,7 +55,6 @@ public:
 private:
 
     void Subdivide();
-    bool Contains(Point* p);
 
 public:
     QuadRect boundary;
@@ -57,7 +65,7 @@ public:
     QuadTree* bottomLeft  = nullptr;
 private:
 
-    int capacity;
+    unsigned int capacity;
     bool leaf = true;
 
 

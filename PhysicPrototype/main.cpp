@@ -3,6 +3,13 @@
 
 using namespace std;
 
+struct Circle {
+	Point pos;
+	int r;
+	
+	QuadRect AABB() { return { pos.x, pos.y, r, r }; };
+};
+
 class PhysicsPrototype : public olcConsoleGameEngineGLOOP
 {
 
@@ -13,39 +20,55 @@ public:
 
 private:
     QuadTree* qTree = nullptr;
-    std::vector<QuadRect*> rectangles;
-
+	std::vector<Circle*> circles;
+	QuadRect searchArea;
 public:
     virtual bool OnUserCreate() override
     {
-        qTree = new QuadTree({ ScreenWidth() / 2, ScreenHeight() / 2, ScreenWidth() / 2, ScreenHeight() / 2 }, 4);
+		// lets not use quadtree yet
+        //qTree = new QuadTree({ ScreenWidth() / 2, ScreenHeight() / 2, ScreenWidth() / 2, ScreenHeight() / 2 }, 4);
+		
+		// Add random points
+		for (int i = 0; i < 100; i++)
+		{
+			int x = rand() % ScreenWidth();
+			int y = rand() % ScreenHeight();
+			circles.push_back(new Circle({ Point({ x,y }), 2 }));
+			//qTree->Insert(new Point({ x, y }) );
+		}
 
+		searchArea = { 0, 0, 20, 20 };
 
         return true;
     };
 
     virtual bool OnUserUpdate(float fElapsedTime) override
     {
+		/*
         if (m_mouse[0].bPressed == true)
         {
             Point* mouseCoord = new Point({m_mousePosX, m_mousePosY});
             qTree->Insert(mouseCoord);
         }
+		*/
 
         // Drawing 
-        // Get points in tree
-        std::vector<Point*> pointsInTree;
-        qTree->getPoints(pointsInTree);
+		// clear screen
+		Fill(0, 0, ScreenWidth(), ScreenHeight(), ' ');
+        // Get points in treenTree, pointsInArea;
         
-        // draw Tree areas
-        DrawQuadTree(qTree);
         
         // draw points
-        for (auto p : pointsInTree)
-            Draw(p->x, p->y);
+		for (auto c : circles)
+            FillCircle(c->pos.x, c->pos.y, c->r);
        
-		// Draw a Rectangle
-		DrawRectangle(122, 133, 62, 46, PIXEL_SOLID, BG_CYAN);
+		searchArea.cx = m_mousePosX;
+		searchArea.cy = m_mousePosY;
+
+		for (auto c : circles)
+		{
+			// TODO: radial checking here for overlap;
+		}
         
         return true;
     };

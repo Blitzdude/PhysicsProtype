@@ -12,7 +12,7 @@ QuadTree::~QuadTree()
 bool QuadTree::Insert(Point * point)
 {
     // AABB check if in bounds
-    if (!Contains(point))
+    if (!boundary.Contains(point))
     {
         // point is not within boundaries
         return false;
@@ -58,18 +58,9 @@ void QuadTree::Subdivide()
 
 }
 
-bool QuadTree::Contains(Point * p)
+void QuadTree::Query(std::vector<Point*>& vec)
 {
-    // AABB Check
-    return (boundary.cx - boundary.w_half <= p->x &&
-            boundary.cx + boundary.w_half >= p->x && 
-            boundary.cy - boundary.h_half <= p->y &&
-            boundary.cy + boundary.h_half >= p->y);
-}
-
-void QuadTree::getPoints(std::vector<Point*>& vec)
-{
-    // get the points in this node
+	// get the points in this node
     for (auto p : points)
         vec.push_back(p);
 
@@ -77,16 +68,18 @@ void QuadTree::getPoints(std::vector<Point*>& vec)
     if (!leaf)
     {
         // getPoints on children 
-        topLeft->getPoints(vec)    ;
-        topRight->getPoints(vec)   ;
-        bottomLeft->getPoints(vec) ;
-        bottomRight->getPoints(vec);
+        topLeft->Query(vec);
+        topRight->Query(vec);
+        bottomRight->Query(vec);
+		bottomLeft->Query(vec);
     }
    
+	return;
 }
 
-void QuadTree::getPointsInArea(std::vector<Point*>& vec, QuadRect area)
+void QuadTree::QueryArea(std::vector<Point*>& vec, QuadRect area)
 {
+	// does the area intersect the boundary?
 	if (!this->boundary.Intersects(area))
 	{
 		// returns empty if no points found
@@ -94,18 +87,22 @@ void QuadTree::getPointsInArea(std::vector<Point*>& vec, QuadRect area)
 	}
 	else
 	{
+		// are any of the points contained within the area?
 		for (auto itr : points)
 		{
-			vec.push_back(itr);
+			if (area.Contains(itr))
+				vec.push_back(itr);
 		}
 
 		if (!isLeaf())
 		{
-			topLeft->getPointsInArea(vec, area);
-			topRight->getPointsInArea(vec, area);
-			bottomRight->getPointsInArea(vec, area);
-			bottomLeft->getPointsInArea(vec, area);
+			// ask the children for points
+			topLeft->QueryArea(vec, area);
+			topRight->QueryArea(vec, area);
+			bottomRight->QueryArea(vec, area);
+			bottomLeft->QueryArea(vec, area);
 		}
 	}
-
+	
+	return;
 }

@@ -169,6 +169,7 @@ enum COLOUR
 };
 enum PIXEL_TYPE
 {
+	// TODO:: Possibly in wrong value for PIXEL_SOLID and PIXEL_HALF
     PIXEL_SOLID = 0x2588,
     PIXEL_THREEQUARTERS = 0x2593,
     PIXEL_HALF = 0x2592,
