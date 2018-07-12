@@ -1,9 +1,17 @@
 #pragma once
+#include "Circle.h"
 #include <vector>
 
 struct Point{
+	// Constructor
+	Point(int _x, int _y, Circle* _userData)
+		: x(_x), y(_y), userData(_userData)
+	{};
+
     int x;
     int y;
+	// void* userData;  /* could be used in the future, but probably just simpler to hold a circle */
+	Circle* userData;
 };
 /*
     Rectangle defined by center

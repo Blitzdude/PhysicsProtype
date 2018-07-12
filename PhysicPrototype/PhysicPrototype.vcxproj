@@ -110,6 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Circle.h" />
     <ClInclude Include="olcConsoleGameEngineGLOOP.h" />
     <ClInclude Include="QuadTree.h" />
   </ItemGroup>
@@ -117,6 +118,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="olcConsoleGameEngineGLOOP.cpp" />
     <ClCompile Include="QuadTree.cpp" />
+    <ClCompile Include="Circle.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
