@@ -1,6 +1,7 @@
 #pragma once
 #include "Circle.h"
 #include <vector>
+#include <memory>
 
 struct Point{
 	// Constructor
@@ -54,9 +55,9 @@ public:
 
 
     bool Insert(Point* point);
-    void Query(std::vector<Point*>& vec = std::vector<Point*>() );
+    void Query(std::vector<Point*>& vec);
 	void QueryArea(std::vector<Point*>& vec, QuadRect area);
-
+	void ClearTree();
     // Getters
     bool isLeaf() { return leaf; };
     
@@ -67,10 +68,10 @@ private:
 public:
     QuadRect boundary;
 
-    QuadTree* topLeft     = nullptr;
-    QuadTree* topRight    = nullptr;
-    QuadTree* bottomRight = nullptr;
-    QuadTree* bottomLeft  = nullptr;
+    std::unique_ptr<QuadTree> topLeft     = nullptr;
+    std::unique_ptr<QuadTree> topRight    = nullptr;
+    std::unique_ptr<QuadTree> bottomRight = nullptr;
+    std::unique_ptr<QuadTree> bottomLeft  = nullptr;
 private:
 
     unsigned int capacity;

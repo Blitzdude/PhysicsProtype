@@ -2,6 +2,8 @@
 #include "Circle.h"
 #include "QuadTree.h"
 
+#include <algorithm>
+
 using namespace std;
 
 
@@ -20,33 +22,24 @@ public:
     virtual bool OnUserCreate() override
     {
 		// Create a new quadTree;
-        qTree = new QuadTree({ ScreenWidth() / 2, ScreenHeight() / 2, ScreenWidth() / 2, ScreenHeight() / 2 }, 4);
+        qTree = new QuadTree({ ScreenWidth() / 2, ScreenHeight() / 2, ScreenWidth() / 2, ScreenHeight() / 2 }, 4); // remade every draw call
 		
 		// Add random points to Circles vector
-		for (int i = 0; i < 1000; i++)
+		for (int i = 0; i < 100; i++)
 		{
 			int x = rand() % ScreenWidth();
 			int y = rand() % ScreenHeight();
 			circles.push_back(new Circle(x, y, 3, i));
 		}
-
-		/*  Go through the now populated vector
-			and insert points into quadtree */
-		for (auto itr : circles)
-			qTree->Insert(new Point({ itr->x, itr->y, itr }));
-
-
         return true;
     };
 
     virtual bool OnUserUpdate(float fElapsedTime) override
     {
-       
         // DRAWING //////////////////////////////////////
 
 		// clear screen
 		Fill(0, 0, ScreenWidth(), ScreenHeight(), ' ');
-        // Get points in treenTree, pointsInArea;
         
 		// move circles in a random direction
 		const int maxMove = 2;
@@ -56,26 +49,22 @@ public:
 			itr->y += ((rand() % maxMove * 2 + 1) - maxMove) ;
 		}
 
-		// TODO: radial checking here for overlap;
-        // Go through the vector 
+		// rebuild the quadtree with new circles
+		
+
+		// Go through the vector 
 		std::vector<Circle*> overlappingCircles;
 		for (auto itr : circles)
 		{
-			// For each element, check overlap from quadtree
 			for (auto other : circles)
 			{
-				// if iterators aren't the same and distance is greater then r1+r2, then circles are overlapping
-
-				if ( other->id != itr->id &&
-					fabs((itr->x - other->x)*(itr->x - other->x) + (itr->y - other->y)*(itr->y - other->y)
-						<= (itr->r + other->r)*(itr->r + other->r)) )
+				// if circle is not itself && they are overlapping
+				if (itr->id != other->id &&
+					fabs((itr->x - other->x)*(itr->x - other->x) + (itr->y - other->y)*(itr->y - other->y) )
+					<= (itr->r + other->r)*(itr->r + other->r))
 				{
-					// circles are overlapping
+					// circle is overlapping
 					overlappingCircles.push_back(itr);
-				}
-				else 
-				{
-					// circles are not overlapping
 				}
 			}
 		}
@@ -84,6 +73,8 @@ public:
 		for (auto c : circles) FillCircle(c->x, c->y, c->r, PIXEL_HALF, BG_WHITE);
 		// draw overlapping circles
 		for (auto o : overlappingCircles) FillCircle(o->x, o->y, o->r, PIXEL_HALF, BG_GREEN);
+
+		// clear the QuadTree, because all the points will have moved
 
         return true;
     };
@@ -97,10 +88,10 @@ public:
         if (!qt->isLeaf())
         {
             // call DrawQuadTree on children    
-            DrawQuadTree(qt->topLeft);
-            DrawQuadTree(qt->topRight);
-            DrawQuadTree(qt->bottomRight);
-            DrawQuadTree(qt->bottomLeft);
+            DrawQuadTree(qt->topLeft.get());
+            DrawQuadTree(qt->topRight.get());
+            DrawQuadTree(qt->bottomRight.get());
+            DrawQuadTree(qt->bottomLeft.get());
         }
     }
 };
