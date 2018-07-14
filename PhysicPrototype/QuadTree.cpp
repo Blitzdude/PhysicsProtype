@@ -77,7 +77,15 @@ void QuadTree::Query(std::vector<Point*>& vec)
 	return;
 }
 
-void QuadTree::QueryArea(std::vector<Point*>& vec, QuadRect area)
+std::vector<Point*> QuadTree::QueryArea(QuadRect area)
+{
+	std::vector<Point*> found;
+	QueryAreaHelper(found, area);
+
+	return found;
+}
+
+void QuadTree::QueryAreaHelper(std::vector<Point*>& vec, QuadRect area)
 {
 	// does the area intersect the boundary?
 	if (!this->boundary.Intersects(area))
@@ -97,10 +105,10 @@ void QuadTree::QueryArea(std::vector<Point*>& vec, QuadRect area)
 		if (!isLeaf())
 		{
 			// ask the children for points
-			topLeft->QueryArea(vec, area);
-			topRight->QueryArea(vec, area);
-			bottomRight->QueryArea(vec, area);
-			bottomLeft->QueryArea(vec, area);
+			topLeft->QueryAreaHelper(vec, area);
+			topRight->QueryAreaHelper(vec, area);
+			bottomRight->QueryAreaHelper(vec, area);
+			bottomLeft->QueryAreaHelper(vec, area);
 		}
 	}
 	
@@ -109,20 +117,31 @@ void QuadTree::QueryArea(std::vector<Point*>& vec, QuadRect area)
 
 void QuadTree::ClearTree()
 {
+	points.clear();
+
 	if (!this->isLeaf())
 	{
-		topLeft->ClearTree();
-		topRight->ClearTree();
-		bottomLeft->ClearTree();
-		bottomRight->ClearTree();
-		
-		topLeft = nullptr;
-		topRight = nullptr;
-		bottomLeft = nullptr;
-		bottomRight = nullptr;
-
+		if (topLeft != nullptr)
+		{
+			topLeft->ClearTree();
+			topLeft == nullptr;
+		}
+		if (topRight != nullptr)
+		{
+			topRight->ClearTree();
+			topRight == nullptr;
+		}
+		if (bottomRight != nullptr)
+		{
+			bottomRight->ClearTree();
+			bottomRight == nullptr;
+		}
+		if (bottomLeft != nullptr)
+		{
+			bottomLeft->ClearTree();
+			bottomLeft == nullptr;
+		}
 		this->leaf = false;
 	}
 
-	points.clear();
 }

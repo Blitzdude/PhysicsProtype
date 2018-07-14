@@ -56,13 +56,15 @@ public:
 
     bool Insert(Point* point);
     void Query(std::vector<Point*>& vec);
-	void QueryArea(std::vector<Point*>& vec, QuadRect area);
+	std::vector<Point*> QueryArea(QuadRect area);
+
 	void ClearTree();
     // Getters
     bool isLeaf() { return leaf; };
     
 private:
 
+	void QueryAreaHelper(std::vector<Point*>& vec, QuadRect area);
     void Subdivide();
 
 public:

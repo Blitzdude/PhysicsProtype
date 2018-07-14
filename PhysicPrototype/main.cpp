@@ -6,6 +6,8 @@
 
 using namespace std;
 
+//#define NOTREE
+#define QUADTREE
 
 class PhysicsPrototype : public olcConsoleGameEngineGLOOP
 {
@@ -25,7 +27,7 @@ public:
         qTree = new QuadTree({ ScreenWidth() / 2, ScreenHeight() / 2, ScreenWidth() / 2, ScreenHeight() / 2 }, 4); // remade every draw call
 		
 		// Add random points to Circles vector
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 1000; i++)
 		{
 			int x = rand() % ScreenWidth();
 			int y = rand() % ScreenHeight();
@@ -49,10 +51,36 @@ public:
 			itr->y += ((rand() % maxMove * 2 + 1) - maxMove) ;
 		}
 
+#ifdef QUADTREE
+		// Clear the quadtree
+		qTree->ClearTree();
 		// rebuild the quadtree with new circles
+		std::vector<Circle*> overlappingCircles;
+		for (auto p : circles)
+		{
+			qTree->Insert(new Point{ p->x, p->y, p });
+		}
+		// for each circle in scene
+		for (auto c : circles)
+		{
+			// search the area for possible overlap
+			auto circlesToCheck = qTree->QueryArea(c->AABB());
+			for (auto other : circlesToCheck)
+			{
+				if (c->id != other->userData->id &&
+					fabs((c->x - other->userData->x)*(c->x - other->userData->x) + (c->y - other->userData->y)*(c->y - other->userData->y))
+					<= (c->r + other->userData->r)*(c->r + other->userData->r))
+				{
+					// circle is overlapping
+					overlappingCircles.push_back(c);
+				}
+			}
+		}
+#endif
 		
 
-		// Go through the vector 
+#ifdef NOTREE
+		// Go through all the circles
 		std::vector<Circle*> overlappingCircles;
 		for (auto itr : circles)
 		{
@@ -68,6 +96,7 @@ public:
 				}
 			}
 		}
+#endif
 
 		// draw circles normally
 		for (auto c : circles) FillCircle(c->x, c->y, c->r, PIXEL_HALF, BG_WHITE);
