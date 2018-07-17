@@ -1,13 +1,18 @@
 #include "QuadTree.h"
 
-QuadTree::QuadTree(QuadRect b, int n) 
-    : boundary(b), capacity(n)
+QuadTree::QuadTree(QuadRect b, int n)
+	: boundary(b), capacity(n), depth(0)
+{
+}
+
+QuadTree::QuadTree(QuadRect b, int n, int d)
+    : boundary(b), capacity(n), depth(d)
 {
 }
 
 QuadTree::~QuadTree()
 {
-	//this->ClearTree();
+	this->DestroyNode();
 }
 
 bool QuadTree::Insert(Point * point)
@@ -27,6 +32,20 @@ bool QuadTree::Insert(Point * point)
     else if (leaf)
     {
         Subdivide();
+		// insert currently held points to children
+		for (auto p : points)
+		{
+			if (topLeft->Insert(p))
+				continue;
+			if (topRight->Insert(p))
+				continue;
+			if (bottomRight->Insert(p))
+				continue;
+			if (bottomLeft->Insert(p))
+				continue;
+		}
+		// then clear the points
+		points.clear();
     }
     
     if (topLeft->Insert(point))
@@ -45,15 +64,16 @@ bool QuadTree::Insert(Point * point)
 /* Divides the quadtree into four branches */
 void QuadTree::Subdivide()
 {
-    QuadRect* tl = new QuadRect({boundary.cx - boundary.w_half / 2, boundary.cy - boundary.h_half / 2, boundary.w_half / 2, boundary.h_half / 2  });
-	topLeft = std::make_unique<QuadTree>(*tl, capacity);
-    QuadRect* tr = new QuadRect({ boundary.cx + boundary.w_half / 2, boundary.cy - boundary.h_half / 2, boundary.w_half / 2, boundary.h_half / 2 });
-    topRight = std::make_unique<QuadTree>(*tr, capacity);
-    QuadRect* br = new QuadRect({ boundary.cx + boundary.w_half / 2, boundary.cy + boundary.h_half / 2, boundary.w_half / 2, boundary.h_half / 2 });
-    bottomRight = std::make_unique<QuadTree>(*br, capacity);
-    QuadRect* bl = new QuadRect({ boundary.cx - boundary.w_half / 2, boundary.cy + boundary.h_half / 2, boundary.w_half / 2, boundary.h_half / 2 });
-    bottomLeft = std::make_unique<QuadTree>(*bl, capacity);
+    QuadRect tl = QuadRect({boundary.cx - boundary.w_half / 2, boundary.cy - boundary.h_half / 2, boundary.w_half / 2, boundary.h_half / 2  });
+	topLeft = std::make_unique<QuadTree>(tl, capacity, depth+1);
+    QuadRect tr = QuadRect({ boundary.cx + boundary.w_half / 2, boundary.cy - boundary.h_half / 2, boundary.w_half / 2, boundary.h_half / 2 });
+    topRight = std::make_unique<QuadTree>(tr, capacity);
+    QuadRect br = QuadRect({ boundary.cx + boundary.w_half / 2, boundary.cy + boundary.h_half / 2, boundary.w_half / 2, boundary.h_half / 2 });
+    bottomRight = std::make_unique<QuadTree>(br, capacity);
+    QuadRect bl = QuadRect({ boundary.cx - boundary.w_half / 2, boundary.cy + boundary.h_half / 2, boundary.w_half / 2, boundary.h_half / 2 });
+    bottomLeft = std::make_unique<QuadTree>(bl, capacity);
 
+	
     // this tree has been divided and is now a branch
     leaf = false;
 }
@@ -115,11 +135,18 @@ void QuadTree::QueryAreaHelper(std::vector<Point*>& vec, QuadRect area)
 	return;
 }
 
+void QuadTree::DestroyNode()
+{
+	this->points.clear();
+	this->boundary;
+}
+
 void QuadTree::ClearTree()
 {
-	points.clear();
+	if (!points.empty())
+		points.clear();
 
-	if (!this->isLeaf())
+	if (!isLeaf())
 	{
 		if (topLeft != nullptr)
 		{
@@ -141,7 +168,8 @@ void QuadTree::ClearTree()
 			bottomLeft->ClearTree();
 			bottomLeft == nullptr;
 		}
-		this->leaf = false;
+		// all children cleared
+		leaf = true;
 	}
 
 }

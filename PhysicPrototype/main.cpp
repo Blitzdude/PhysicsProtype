@@ -20,14 +20,15 @@ public:
 private:
     QuadTree* qTree = nullptr;
 	std::vector<Circle*> circles;
+
 public:
     virtual bool OnUserCreate() override
     {
 		// Create a new quadTree;
-        qTree = new QuadTree({ ScreenWidth() / 2, ScreenHeight() / 2, ScreenWidth() / 2, ScreenHeight() / 2 }, 4); // remade every draw call
+        qTree = new QuadTree({ ScreenWidth() / 2, ScreenHeight() / 2, ScreenWidth() / 2, ScreenHeight() / 2 }, 2); // remade every draw call
 		
 		// Add random points to Circles vector
-		for (int i = 0; i < 1000; i++)
+		for (int i = 0; i < 100; i++)
 		{
 			int x = rand() % ScreenWidth();
 			int y = rand() % ScreenHeight();
@@ -41,7 +42,7 @@ public:
         // DRAWING //////////////////////////////////////
 
 		// clear screen
-		Fill(0, 0, ScreenWidth(), ScreenHeight(), ' ');
+		Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, BG_BLACK);
         
 		// move circles in a random direction
 		const int maxMove = 2;
@@ -68,8 +69,8 @@ public:
 			for (auto other : circlesToCheck)
 			{
 				if (c->id != other->userData->id &&
-					fabs((c->x - other->userData->x)*(c->x - other->userData->x) + (c->y - other->userData->y)*(c->y - other->userData->y))
-					<= (c->r + other->userData->r)*(c->r + other->userData->r))
+					sqrt(fabs((c->x - other->userData->x) + (c->y - other->userData->y)))
+					<= c->r + other->userData->r)
 				{
 					// circle is overlapping
 					overlappingCircles.push_back(c);
@@ -103,8 +104,8 @@ public:
 		// draw overlapping circles
 		for (auto o : overlappingCircles) FillCircle(o->x, o->y, o->r, PIXEL_HALF, BG_GREEN);
 
-		// clear the QuadTree, because all the points will have moved
-
+		// draw quadtree
+		DrawQuadTree(qTree);
         return true;
     };
 
@@ -112,7 +113,7 @@ public:
     {
         // draw boundary
         QuadRect b = qt->boundary;
-        DrawRectangle(b.cx - b.w_half, b.cy - b.h_half, b.Width()-1, b.Height()-1, PIXEL_SOLID, FG_GREEN);
+        DrawRectangle(b.cx - b.w_half, b.cy - b.h_half, b.Width(), b.Height(), PIXEL_SOLID, FG_GREEN);
         // check if is leaf
         if (!qt->isLeaf())
         {
